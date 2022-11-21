@@ -1,4 +1,4 @@
-//requêter l'API 
+//requête l'API 
 console.log('Hello');
 function getAllProducts(){
     console.log('Bonjour');
@@ -50,13 +50,3 @@ function showProducts(products){
 }
 
 getAllProducts();
-
-//Dire où va les produits dans html
-//let elt = document.getElementById('items');
-/* Créer les balises a, article, img, h3 et p => var ** = document.createElement ('')?
-elt.innerHTML = ""; =>pour ajouter le contenu au html 
-ajouter href à a =
-ajouter img et le alt =
-ajouter class aux balises h3 et p =
-
-const new */
