@@ -1,7 +1,5 @@
 //requête l'API 
-console.log('Hello');
 function getAllProducts(){
-    console.log('Bonjour');
     fetch ("http://localhost:3000/api/products")
         .then(function(res) {
             console.log(res);
@@ -34,7 +32,7 @@ function showProducts(products){
         p.innerText = product.description;
 
         //ajout attribut et class
-        a.setAttribute("href", "./product.html?id=" + showProducts._id);
+        a.setAttribute("href", "./product.html?id=" + product._id);
         img.setAttribute("alt", product.altTxt);
         h3.classList.add("productName");
         p.classList.add("productDescription");
