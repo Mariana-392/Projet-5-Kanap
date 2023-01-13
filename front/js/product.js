@@ -8,7 +8,6 @@ function getOneProduct(id){
         })
         .then(function(value) {
             showOneProduct(value);
-            getProductColors(value);
             console.log(value);
         })
         .catch(function(err) {
@@ -24,6 +23,7 @@ console.log(id);
 
 getOneProduct(id);
 
+//insertion détails du produit
 function showOneProduct(product){
     console.log(product);
         //ajout img avec src + alt
@@ -45,43 +45,76 @@ function showOneProduct(product){
         const description = document.getElementById('description');
         description.textContent = product.description;
 
-        console.log('couleurs');
-
+        //ajout des couleurs
         const colors = product.colors;
         colors.forEach(color => {
-        console.log('colors.forEach');
-        const select = document.getElementById("colors");
-        console.log('select');
-        const option = document.createElement("option");
-        console.log('option');
-        option.innerText = color;
-        console.log('innerText');
-        option.setAttribute("value", color);
-        console.log('valueattribute');
-        select.appendChild(option);
-        console.log('appendchild');
+            console.log('colors.forEach');
+            const select = document.getElementById("colors");
+            const option = document.createElement("option");
+            option.innerText = color;
+            option.setAttribute("value", color);
+            select.appendChild(option);
         });
+        localStorage.setItem("currentProductId", product._id);
 }
 
 
-/*function getProductColors(colors){
-    console.log('function getProductColors');
-    colors.forEach(function(color){
-        console.log('function color');
-        const select = document.getElementById("colors");
-        const option = document.createElement("option");
-        option.innerText = product.colors;
-        option.setAttribute("value=", product.colors);
-        select.appendChild(option);
-        
-    });
-}*/
-        /*ajout des couleurs :
-        se situer sur l'option des couleurs
-        ajouter option?
-        lier contenu à l'API
-        ajouter une "value" en fonction couleur choisie
-        ajouter sur la page du Produit selectionné*/
+/*panier
+-enregistrer vers panier au clic sur le bouton ajouter au panier
+-créer array avec id, quantité et couleur du produit à enregistrer dans le local storage
+-utiliser Localstorage
+*/
 
-/*
-ajout option des couleurs => for ( let--- in/of ---.colors)*/
+function getBasket(){
+    let basket = localStorage.getItem("basket");
+    if (basket == null){
+        return[];
+    }
+    else{
+        return JSON.parse(basket);
+    }
+}
+
+const cartButton = document.getElementById("addToCart");
+cartButton.addEventListener("click", addToCart);
+
+function addToCart(){
+    console.log("add to cart");
+    const color = document.getElementById("colors");
+    const quantity = document.getElementById("quantity");
+    let newProductInBasket = {
+        color: color.value, 
+        id: localStorage.getItem("currentProductId"), 
+        quantity: quantity.value
+    };
+
+    let basket = JSON.parse(localStorage.getItem("basket"));
+    if(typeof basket === "undefined" || basket === null ){
+        basket = [];
+    }
+/*rechercher si l'item existe dans le tableau par id et couleur: 
+si oui, je récupere quantity et l'ajoute à l'ancienne quantity. 
+On supprime l'ancienn produit du tableau et on rajoute le nouveau
+*/
+
+    let existingProductInBasket = basket.find((product) => 
+            product.id === newProductInBasket.id &&
+            product.color === newProductInBasket.color
+    );
+    
+    if(typeof existingProductInBasket !== "undefined"){
+        existingProductInBasket.quantity = parseInt(existingProductInBasket.quantity) + parseInt(quantity.value) ;
+        basket = basket.filter(
+            (product) => 
+                product.id != newProductInBasket.id &&
+                product.color != newProductInBasket.color
+        );
+        newProductInBasket = existingProductInBasket;
+    }
+
+    basket.push(newProductInBasket);
+
+    localStorage.setItem('basket', JSON.stringify(basket));    
+
+    
+}
