@@ -11,6 +11,8 @@ function getProductsbyAPI(loadProducts){
         .then(function(products) {
             handlePrice(products, loadProducts);
             deleteProducts();
+            changeQuantityProducts();
+            handleSubmitForm();
 
         })
         .catch(function(err) {
@@ -164,56 +166,157 @@ getProductsbyAPI(false);
     console.log(deleteButton);
 }
 
-function modifyProducts(){
-    const modifyButtonList = document.getElementsByClassName("itemQuantity");
-    for (let button of modifyButtonList) {
-        button.addEventListener('change', modifyOneProduct)
+//changer quantité dans le panier
+function changeQuantityProducts(){
+    const selectButtonList = document.getElementsByClassName("itemQuantity");
+
+    for (let input of selectButtonList) {
+        input.addEventListener('change', changeQuantityOneProduct)
     }
 }
 
-function modifyOneProduct(event){
+function changeQuantityOneProduct(event){
     const modifyButton = event.target;
-    
     const product = modifyButton.closest("article");
     const productId = product.dataset.id;
     const productColor = product.dataset.color;
+    const productQuantity = modifyButton.value;
     const productsInLocalstorage = JSON.parse(localStorage.getItem("basket"));
+
     const updatedBasket = productsInLocalstorage.filter(
         (product) => 
             product.id != productId ||
             product.color != productColor
     );
-localStorage.setItem("basket", JSON.stringify(updatedBasket)); 
 
-product.remove();
-getProductsbyAPI(false);
+    const updatedProduct = productsInLocalstorage.filter(
+        (product) => 
+            product.id === productId &&
+            product.color === productColor
+    ); 
+    updatedProduct[0].quantity = productQuantity;
+    updatedBasket.push(updatedProduct[0]);
+    localStorage.setItem("basket", JSON.stringify(updatedBasket)); 
 
+    getProductsbyAPI(false);
 
-    console.log(deleteButton);
 }
+
 //formulaire de commande
 
-/*function formValidation(cart){
-    const firstName = document.getElementById("firstName");
-    const lastName = document.getElementById("lastName");
-    const address = document.getElementById("address");
-    const city = document.getElementById("city");
-    const email = document.getElementById("email");
-
-//Création des expresssions régulières
-    const firstNameRegex = /^[a-zA-Z ]+$/;
-    const lastNameRegex = /^[a-zA-Z ]+$/;
-    const addressRegex = ;
-    const cityRegex = ;
-    const emailRegex = ;
-
-
-
-    /*validation du formulaire
-    element.addEventListerner("input" or "change",function ()){
-
-    }
+function handleSubmitForm() {
+    /**
+     * Gérer l'event listener du formulaire pour l'envoi
+     */
+    const form = document.getElementById("order").closest("form");
+    form.addEventListener("submit", sendForm);
 }
-*/
+
+function sendForm(event) {
+
+    event.preventDefault();
+
+    const contact = {
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('firstName').value,
+        address : document.getElementById("address").value,
+        city: document.getElementById('city').value,
+        email: document.getElementById('email').value,
+    };
+
+    if (!validateForm(contact)) {
+        return;
+    }
+
+    // A partir de là, faire progressivement ces lignes après s'etre assuré que validateForm fonctionne
+    const form = event.target;
+
+    let cartItemArray = [];
+        for (let item of JSON.parse(localStorage.getItem("basket"))){
+        cartItemArray.push(item.id)
+        };
+
+    const payload = {
+        products : cartItemArray,
+        contact: contact
+    }
+console.log(payload);
+    /**
+     * Fetch API: requête POST avec la variable "payload" en données
+     */
+
+    fetch('http://localhost:3000/api/products/order', {
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json", 
+        },
+        body: JSON.stringify(payload)
+    }).then((response) => response.json())
+    .then((data) => {
+        document.location.href = `confirmation.html?id=${data.orderId}#limitedWidthBlock`;
+    })
+    .catch((err) => {
+        alert("Erreur : " + err);
+    });
+}
+
+
+function validateForm(contact) {
+    /**
+     * Valider un à un les champs du formulaire
+    *si non valide, mettre un msg d'erreur
+     */
+
+    //Création des expresssions régulières
+    const nameRegExp = /^[A-Za-z,'-]+$/;
+    const addressRegExp = /^[a-zA-Z0-9\s,. '-]{3,}$/ ;
+    const cityRegExp = /^(?:[A-Za-z]{2,}(?:(\.\s|'s\s|\s?-\s?|\s)?(?=[A-Za-z]+))){1,2}(?:[A-Za-z]+)?$/;
+    const emailRegExp = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+
+    let formIsValid = true;
+    
+    //validation First Name
+    if (!nameRegExp.test(contact.firstName)){
+        const firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
+        firstNameErrorMsg.innerHTML = "Veuillez renseigner un prénom valide";
+        formIsValid = false;
+    };
+
+    //validation Last Name
+    if (!nameRegExp.test(contact.lastName)){
+        const lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
+        lastNameErrorMsg.innerHTML = "Veuillez renseigner un nom valide";
+        formIsValid = false;
+    };
+
+    //validation adress
+    if (!addressRegExp.test(contact.address)){
+        console.log("validate address");
+        const addressErrorMsg = document.getElementById("addressErrorMsg");
+        addressErrorMsg.innerHTML = "Veuillez renseigner une adresse valide";
+        formIsValid = false;
+    };
+
+    //validation city
+    if (!cityRegExp.test(contact.city)){
+        const cityErrorMsg = document.getElementById("cityErrorMsg");
+        cityErrorMsg.innerHTML = "Veuillez renseigner une ville valide";
+        formIsValid = false;
+    };
+
+    //validation email
+    if (!emailRegExp.test(contact.email)){
+        const emailErrorMsg = document.getElementById("emailErrorMsg");
+        emailErrorMsg.innerHTML = "Veuillez renseigner un email valide";
+        formIsValid = false;
+    };
+
+    //si tous les champs sont remplis = ok sinon envoyer une alerte
+    if(!formIsValid){ 
+        alert ("Merci de vérifier vos informations")
+    }
+
+    return formIsValid
+};
 
 getProductsbyAPI(true);
