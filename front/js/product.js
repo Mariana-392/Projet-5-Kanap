@@ -1,3 +1,4 @@
+// Requête API pour avoir le produit par son id
 function getOneProduct(id){
     fetch ("http://localhost:3000/api/products/"+id)
         .then(function(res) {
@@ -26,26 +27,26 @@ getOneProduct(id);
 //insertion détails du produit
 function showOneProduct(product){
     console.log(product);
-        //ajout img avec src + alt
+        /*ajout img avec src + alt*/
         const itemSection= document.getElementsByClassName('item__img');
         const img = document.createElement("img");
         img.src = product.imageUrl;
         img.setAttribute("alt", product.altTxt);
         itemSection[0].appendChild(img);
 
-        //ajout title
+        /*ajout title*/
         const title = document.getElementById('title');
         title.textContent = product.name;
 
-        //ajout price
+        /*ajout price*/
         const price = document.getElementById('price');
         price.textContent = product.price;
 
-        //ajout description
+        /*ajout description*/
         const description = document.getElementById('description');
         description.textContent = product.description;
 
-        //ajout des couleurs
+        /*ajout des couleurs*/
         const colors = product.colors;
         colors.forEach(color => {
             console.log('colors.forEach');
@@ -78,8 +79,8 @@ function getBasket(){
 const cartButton = document.getElementById("addToCart");
 cartButton.addEventListener("click", addToCart);
 
+//Ajout au panier 
 function addToCart(){
-    console.log("add to cart");
     const color = document.getElementById("colors");
     const quantity = document.getElementById("quantity");
     let newProductInBasket = {
@@ -92,10 +93,11 @@ function addToCart(){
     if(typeof basket === "undefined" || basket === null ){
         basket = [];
     }
-/*rechercher si l'item existe dans le tableau par id et couleur: 
-si oui, je récupere quantity et l'ajoute à l'ancienne quantity. 
-On supprime l'ancienn produit du tableau et on rajoute le nouveau
-*/
+
+    /*rechercher si l'item existe dans le tableau par id et couleur: 
+    si oui, je récupere quantity et l'ajoute à l'ancienne quantity. 
+    On supprime l'ancienn produit du tableau et on rajoute le nouveau
+    */
 
     let existingProductInBasket = basket.find((product) => 
             product.id === newProductInBasket.id &&
@@ -113,7 +115,7 @@ On supprime l'ancienn produit du tableau et on rajoute le nouveau
     }
 
     basket.push(newProductInBasket);
-
+    alert("Votre produit a bien été ajouté au panier");
     localStorage.setItem('basket', JSON.stringify(basket));    
 
     

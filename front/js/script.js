@@ -15,6 +15,8 @@ function getAllProducts(){
         // Une erreur est survenue
         });
 }
+
+//Montrer tous les produits 
 function showProducts(products){
     products.forEach(function(product){
         const itemSection= document.getElementById('items');

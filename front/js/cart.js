@@ -13,13 +13,14 @@ function getProductsbyAPI(loadProducts){
             deleteProducts();
             changeQuantityProducts();
             handleSubmitForm();
-
         })
+        
         .catch(function(err) {
         // Une erreur est survenue
         });
 }
 
+//function pour calculer le prix total et la quantité total des articles dans le panier
 function handlePrice(products, loadProducts){
     const productsInLocalstorage = JSON.parse(localStorage.getItem("basket"));
     const hydratedProducts = hydrateProducts(products,productsInLocalstorage);
@@ -40,6 +41,7 @@ function handlePrice(products, loadProducts){
     productTotalQuantity.innerHTML = totalQuantity;
 }
 
+//function pour récupèrer les données nécessaires du localstorage et de l'API
 function hydrateProducts(allProducts, productsInBasket){
     let hydratedProducts = [];
     productsInBasket.forEach(product => {
@@ -58,6 +60,7 @@ function hydrateProducts(allProducts, productsInBasket){
     return hydratedProducts;
 }
 
+//Montrer les détails des produits dans le panier
 function showCartDetails(products){
     products.forEach(product => {
         showOneProduct(product);
@@ -131,6 +134,8 @@ function showOneProduct(product){
 
 }
 
+
+// Suppression d'un produit
 function deleteProducts(){
     const deleteButtonList = document.getElementsByClassName("deleteItem");
     for (let button of deleteButtonList) {
@@ -141,32 +146,28 @@ function deleteProducts(){
 function deleteOneProduct(event){
     const deleteButton = event.target;
     
-// 1. Retrouver l'élément parent du deleteBetton, lequel contient le data-id et data-color
-const product = deleteButton.closest("article");
-// 2. Récupérer ces valeurs data-id et data-color dans des constantes
-const productId = product.dataset.id;
-const productColor = product.dataset.color;
-// 3. Trouver, graĉe à ces 2 constantes, dans mon tableau localStorage, le produit correspondant
-const productsInLocalstorage = JSON.parse(localStorage.getItem("basket"));
-const updatedBasket = productsInLocalstorage.filter(
-    (product) => 
-        product.id != productId ||
-        product.color != productColor
-);
-localStorage.setItem("basket", JSON.stringify(updatedBasket)); 
+    /*Retrouver l'élément parent du deleteBetton, lequel contient le data-id et data-color*/
+    const product = deleteButton.closest("article");
+    /*Récupérer ces valeurs data-id et data-color dans des constantes*/
+    const productId = product.dataset.id;
+    const productColor = product.dataset.color;
+    /*Trouver, graĉe à ces 2 constantes, dans mon tableau localStorage, le produit correspondant*/
+    const productsInLocalstorage = JSON.parse(localStorage.getItem("basket"));
+    const updatedBasket = productsInLocalstorage.filter(
+        (product) => 
+            product.id != productId ||
+            product.color != productColor
+        );
+    /*mise à jour du localStorage et suppression dans le DOM*/
+    localStorage.setItem("basket", JSON.stringify(updatedBasket)); 
 
-product.remove();
-getProductsbyAPI(false);
-// 4. Récupérer l'index dans le tableau localStorage, du produit correspondant (disons: const deletedProductIndex)
-
-// 5. Supprimer, dans le tableau localStorage l'index = deletedProductIndex
-// 5bis. Mettre le tableau localStorage modifié dans le localStorage et en supprimant l'ancien tableau
-// 6. Supprimer dans le DOM, l'élément parent retrouvé à l'étape 1
+    product.remove();
+    getProductsbyAPI(false);
 
     console.log(deleteButton);
 }
 
-//changer quantité dans le panier
+//Changer quantité dans le panier
 function changeQuantityProducts(){
     const selectButtonList = document.getElementsByClassName("itemQuantity");
 
@@ -205,13 +206,12 @@ function changeQuantityOneProduct(event){
 //formulaire de commande
 
 function handleSubmitForm() {
-    /**
-     * Gérer l'event listener du formulaire pour l'envoi
-     */
+    /*Gérer l'event listener du formulaire pour l'envoi*/
     const form = document.getElementById("order").closest("form");
     form.addEventListener("submit", sendForm);
 }
 
+//Envoyer le formulaire et redirigé vers la page confirmation avec le num de commande
 function sendForm(event) {
 
     event.preventDefault();
@@ -251,7 +251,8 @@ console.log(payload);
             "Content-Type": "application/json", 
         },
         body: JSON.stringify(payload)
-    }).then((response) => response.json())
+    })
+    .then((response) => response.json())
     .then((data) => {
         document.location.href = `confirmation.html?id=${data.orderId}#limitedWidthBlock`;
     })
@@ -262,10 +263,9 @@ console.log(payload);
 
 
 function validateForm(contact) {
-    /**
-     * Valider un à un les champs du formulaire
-    *si non valide, mettre un msg d'erreur
-     */
+    /* Valider un à un les champs du formulaire
+    si non valide, mettre un msg d'erreur
+    */
 
     //Création des expresssions régulières
     const nameRegExp = /^[A-Za-z,'-]+$/;
