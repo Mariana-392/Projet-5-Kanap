@@ -2,14 +2,12 @@
 function getAllProducts(){
     fetch ("http://localhost:3000/api/products")
         .then(function(res) {
-            console.log(res);
             if (res.ok) {
                 return res.json();
             }
         })
         .then(function(value) {
             showProducts(value);
-            console.log(value);
         })
         .catch(function(err) {
         // Une erreur est survenue
@@ -34,7 +32,7 @@ function showProducts(products){
         p.innerText = product.description;
 
         //ajout attribut et class
-        a.setAttribute("href", "./product.html?id=" + product._id);
+        a.setAttribute("href", `./product.html?id=${product._id}`);
         img.setAttribute("alt", product.altTxt);
         h3.classList.add("productName");
         p.classList.add("productDescription");

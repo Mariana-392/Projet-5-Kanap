@@ -2,7 +2,6 @@
 function getProductsbyAPI(loadProducts){
     fetch ("http://localhost:3000/api/products/")
         .then(function(res) {
-            console.log(res);
             if (res.ok) {
                 return res.json();
             }
@@ -164,7 +163,6 @@ function deleteOneProduct(event){
     product.remove();
     getProductsbyAPI(false);
 
-    console.log(deleteButton);
 }
 
 //Changer quantité dans le panier
@@ -213,8 +211,16 @@ function handleSubmitForm() {
 
 //Envoyer le formulaire et redirigé vers la page confirmation avec le num de commande
 function sendForm(event) {
-
     event.preventDefault();
+
+/*si le panier est vide, empêcher l'utilisateur d'envoyer le formulaire
+*si localStorage =  vide alors faire un innerHTML sur l'ID "cartAndFormContainer" 
+pour y mettre un H1 'Votre panier est vide"sinon le reste du code
+*/
+    const productsInLocalstorage = JSON.parse(localStorage.getItem("basket"));
+    if (productsInLocalstorage == null || productsInLocalstorage == "undefined"){
+    document.getElementById("cartAndFormContainer").innerHTML= "Votre panier est vide !" ;
+}
 
     const contact = {
         firstName: document.getElementById('firstName').value,
@@ -223,6 +229,7 @@ function sendForm(event) {
         city: document.getElementById('city').value,
         email: document.getElementById('email').value,
     };
+
 
     if (!validateForm(contact)) {
         return;
@@ -240,7 +247,6 @@ function sendForm(event) {
         products : cartItemArray,
         contact: contact
     }
-console.log(payload);
     /**
      * Fetch API: requête POST avec la variable "payload" en données
      */
@@ -257,7 +263,7 @@ console.log(payload);
         document.location.href = `confirmation.html?id=${data.orderId}#limitedWidthBlock`;
     })
     .catch((err) => {
-        alert("Erreur : " + err);
+        alert(`Erreur : ${err}`);
     });
 }
 
@@ -272,43 +278,69 @@ function validateForm(contact) {
     const addressRegExp = /^[a-zA-Z0-9\s,. '-]{3,}$/ ;
     const cityRegExp = /^(?:[A-Za-z]{2,}(?:(\.\s|'s\s|\s?-\s?|\s)?(?=[A-Za-z]+))){1,2}(?:[A-Za-z]+)?$/;
     const emailRegExp = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+    //champs du formulaire
+    /*const firstName = document.getElementById("firstName");
+    const lastName = document.getElementById("lastName");
+    const address = document.getElementById("address");
+    const city = document.getElementById("city");
+    const email = document.getElementById("email");*/
+    //champs du formulaire pour le message d'erreur
+    const firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
+    const lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
+    const addressErrorMsg = document.getElementById("addressErrorMsg");
+    const cityErrorMsg = document.getElementById("cityErrorMsg");
+    const emailErrorMsg = document.getElementById("emailErrorMsg");
 
     let formIsValid = true;
     
     //validation First Name
     if (!nameRegExp.test(contact.firstName)){
-        const firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
         firstNameErrorMsg.innerHTML = "Veuillez renseigner un prénom valide";
         formIsValid = false;
+    }
+    else{
+        firstNameErrorMsg.innerHTML = "";
+        formIsValid = true;
     };
 
     //validation Last Name
     if (!nameRegExp.test(contact.lastName)){
-        const lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
         lastNameErrorMsg.innerHTML = "Veuillez renseigner un nom valide";
         formIsValid = false;
+    }
+    else{
+        lastNameErrorMsg.innerHTML = "";
+        formIsValid = true;
     };
 
     //validation adress
     if (!addressRegExp.test(contact.address)){
-        console.log("validate address");
-        const addressErrorMsg = document.getElementById("addressErrorMsg");
         addressErrorMsg.innerHTML = "Veuillez renseigner une adresse valide";
         formIsValid = false;
+    }
+    else{
+        addressErrorMsg.innerHTML = "";
+        formIsValid = true;
     };
 
     //validation city
     if (!cityRegExp.test(contact.city)){
-        const cityErrorMsg = document.getElementById("cityErrorMsg");
         cityErrorMsg.innerHTML = "Veuillez renseigner une ville valide";
         formIsValid = false;
+    }
+    else{
+        cityErrorMsg.innerHTML = "";
+        formIsValid = true;
     };
 
     //validation email
     if (!emailRegExp.test(contact.email)){
-        const emailErrorMsg = document.getElementById("emailErrorMsg");
         emailErrorMsg.innerHTML = "Veuillez renseigner un email valide";
         formIsValid = false;
+    }
+    else{
+        emailErrorMsg.innerHTML = "";
+        formIsValid = true;
     };
 
     //si tous les champs sont remplis = ok sinon envoyer une alerte
@@ -318,5 +350,6 @@ function validateForm(contact) {
 
     return formIsValid
 };
+
 
 getProductsbyAPI(true);

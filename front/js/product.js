@@ -1,15 +1,13 @@
 // Requête API pour avoir le produit par son id
 function getOneProduct(id){
-    fetch ("http://localhost:3000/api/products/"+id)
+    fetch (`http://localhost:3000/api/products/${id}`)
         .then(function(res) {
-            console.log(res);
             if (res.ok) {
                 return res.json();
             }
         })
         .then(function(value) {
             showOneProduct(value);
-            console.log(value);
         })
         .catch(function(err) {
         // Une erreur est survenue
@@ -20,13 +18,11 @@ function getOneProduct(id){
 
 const url = new URL(window.location.href);
 const id = url.searchParams.get("id");
-console.log(id);
 
 getOneProduct(id);
 
 //insertion détails du produit
 function showOneProduct(product){
-    console.log(product);
         /*ajout img avec src + alt*/
         const itemSection= document.getElementsByClassName('item__img');
         const img = document.createElement("img");
@@ -49,7 +45,6 @@ function showOneProduct(product){
         /*ajout des couleurs*/
         const colors = product.colors;
         colors.forEach(color => {
-            console.log('colors.forEach');
             const select = document.getElementById("colors");
             const option = document.createElement("option");
             option.innerText = color;
