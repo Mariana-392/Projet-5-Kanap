@@ -109,9 +109,17 @@ function addToCart(){
         newProductInBasket = existingProductInBasket;
     }
 
+    if (color.value == "" || quantity.value <= 0 || quantity.value > 100 ) {
+        alert(
+        "Veuillez choisir une couleur et une quantité comprise entre 1 et 100"
+        );}
+        else if(newProductInBasket.quantity >100){
+            alert("Vous ne pouvez en commander que 100 maximum");
+        }
+    else{
     basket.push(newProductInBasket);
     alert("Votre produit a bien été ajouté au panier");
     localStorage.setItem('basket', JSON.stringify(basket));    
-
+}
     
 }

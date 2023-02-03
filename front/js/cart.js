@@ -220,7 +220,7 @@ pour y mettre un H1 'Votre panier est vide"sinon le reste du code
     const productsInLocalstorage = JSON.parse(localStorage.getItem("basket"));
     if (productsInLocalstorage == null || productsInLocalstorage == "undefined"){
     document.getElementById("cartAndFormContainer").innerHTML= "Votre panier est vide !" ;
-}
+    }
 
     const contact = {
         firstName: document.getElementById('firstName').value,
@@ -279,11 +279,11 @@ function validateForm(contact) {
     const cityRegExp = /^(?:[A-Za-z]{2,}(?:(\.\s|'s\s|\s?-\s?|\s)?(?=[A-Za-z]+))){1,2}(?:[A-Za-z]+)?$/;
     const emailRegExp = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
     //champs du formulaire
-    /*const firstName = document.getElementById("firstName");
+    const firstName = document.getElementById("firstName");
     const lastName = document.getElementById("lastName");
     const address = document.getElementById("address");
     const city = document.getElementById("city");
-    const email = document.getElementById("email");*/
+    const email = document.getElementById("email");
     //champs du formulaire pour le message d'erreur
     const firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
     const lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
@@ -294,14 +294,17 @@ function validateForm(contact) {
     let formIsValid = true;
     
     //validation First Name
-    if (!nameRegExp.test(contact.firstName)){
-        firstNameErrorMsg.innerHTML = "Veuillez renseigner un prénom valide";
-        formIsValid = false;
-    }
-    else{
-        firstNameErrorMsg.innerHTML = "";
-        formIsValid = true;
-    };
+    firstName.addEventListener("input", (event) =>{
+        if (!nameRegExp.test(contact.firstName)){
+            firstNameErrorMsg.innerHTML = "Veuillez renseigner un prénom valide";
+            formIsValid = false;
+        }
+        else{
+            firstNameErrorMsg.innerHTML = "";
+            formIsValid = true;
+        };
+    })
+
 
     //validation Last Name
     if (!nameRegExp.test(contact.lastName)){
