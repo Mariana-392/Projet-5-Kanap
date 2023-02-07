@@ -1,5 +1,12 @@
 //function pour avoir les produits via l'API
 function getProductsbyAPI(loadProducts){
+    //si basket = vide, mettre h1 en "panier vide" et cacher la section "cart"
+    let basket = JSON.parse(localStorage.getItem("basket"));
+    if (localStorage.getItem("basket") === null || localStorage.getItem("basket").length === 0){
+        document.getElementById("cartAndFormContainer").firstElementChild.innerText = "Votre panier est vide !";
+        document.querySelector("section.cart").remove();
+        return;
+    }
     fetch ("http://localhost:3000/api/products/")
         .then(function(res) {
             if (res.ok) {
@@ -213,27 +220,18 @@ function handleSubmitForm() {
 function sendForm(event) {
     event.preventDefault();
 
-/*si le panier est vide, empêcher l'utilisateur d'envoyer le formulaire
-*si localStorage =  vide alors faire un innerHTML sur l'ID "cartAndFormContainer" 
-pour y mettre un H1 'Votre panier est vide"sinon le reste du code
-*/
-    const productsInLocalstorage = JSON.parse(localStorage.getItem("basket"));
-    if (productsInLocalstorage == null || productsInLocalstorage == "undefined"){
-    document.getElementById("cartAndFormContainer").innerHTML= "Votre panier est vide !" ;
-    }
-
     const contact = {
         firstName: document.getElementById('firstName').value,
-        lastName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
         address : document.getElementById("address").value,
         city: document.getElementById('city').value,
         email: document.getElementById('email').value,
     };
 
-
     if (!validateForm(contact)) {
         return;
     }
+
 
     // A partir de là, faire progressivement ces lignes après s'etre assuré que validateForm fonctionne
     const form = event.target;
@@ -267,92 +265,82 @@ pour y mettre un H1 'Votre panier est vide"sinon le reste du code
     });
 }
 
-
 function validateForm(contact) {
-    /* Valider un à un les champs du formulaire
-    si non valide, mettre un msg d'erreur
-    */
-
     //Création des expresssions régulières
     const nameRegExp = /^[A-Za-z,'-]+$/;
     const addressRegExp = /^[a-zA-Z0-9\s,. '-]{3,}$/ ;
     const cityRegExp = /^(?:[A-Za-z]{2,}(?:(\.\s|'s\s|\s?-\s?|\s)?(?=[A-Za-z]+))){1,2}(?:[A-Za-z]+)?$/;
     const emailRegExp = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
-    //champs du formulaire
-    const firstName = document.getElementById("firstName");
-    const lastName = document.getElementById("lastName");
-    const address = document.getElementById("address");
-    const city = document.getElementById("city");
-    const email = document.getElementById("email");
-    //champs du formulaire pour le message d'erreur
-    const firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
-    const lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
-    const addressErrorMsg = document.getElementById("addressErrorMsg");
-    const cityErrorMsg = document.getElementById("cityErrorMsg");
-    const emailErrorMsg = document.getElementById("emailErrorMsg");
 
-    let formIsValid = true;
-    
-    //validation First Name
-    firstName.addEventListener("input", (event) =>{
-        if (!nameRegExp.test(contact.firstName)){
-            firstNameErrorMsg.innerHTML = "Veuillez renseigner un prénom valide";
-            formIsValid = false;
-        }
-        else{
-            firstNameErrorMsg.innerHTML = "";
-            formIsValid = true;
-        };
+// First Name
+    const firstName = document.getElementById("firstName")
+    const firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
+    let firstNameState = false;
+
+    firstName.addEventListener("input", resultFind =>{
+        resultFind = nameRegExp(contact.firstName);
+        firstNameErrorMsg.innerHTML = resultFind ? "" : "Veuillez entrer un prénom valide";
+        firstNameState = resultFind ? true : false;
     })
 
+// LastName
+    const lastName = document.getElementById("lastName");
+    const lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
+    let lastNameState = false;
 
-    //validation Last Name
-    if (!nameRegExp.test(contact.lastName)){
-        lastNameErrorMsg.innerHTML = "Veuillez renseigner un nom valide";
-        formIsValid = false;
-    }
-    else{
-        lastNameErrorMsg.innerHTML = "";
-        formIsValid = true;
-    };
+lastName.addEventListener("input", resultFind =>{
+    resultFind = nameRegExp(contact.lastName);
+    lastNameErrorMsg.innerHTML = resultFind ? "" : "Veuillez entrer un nom valide";
+    lastNameState = resultFind ? true : false;
+})
 
-    //validation adress
-    if (!addressRegExp.test(contact.address)){
-        addressErrorMsg.innerHTML = "Veuillez renseigner une adresse valide";
-        formIsValid = false;
-    }
-    else{
-        addressErrorMsg.innerHTML = "";
-        formIsValid = true;
-    };
+//Address
+    const address = document.getElementById("address");
+    const addressErrorMsg = document.getElementById("addressErrorMsg");
+    let addressState = false;
 
-    //validation city
-    if (!cityRegExp.test(contact.city)){
-        cityErrorMsg.innerHTML = "Veuillez renseigner une ville valide";
-        formIsValid = false;
-    }
-    else{
-        cityErrorMsg.innerHTML = "";
-        formIsValid = true;
-    };
+address.addEventListener("input", resultFind =>{
+    resultFind = addressRegExp(contact.address);
+    addressErrorMsg.innerHTML = resultFind ? "" : "Veuillez entrer une addresse valide";
+    addressState = resultFind ? true : false;
+})
 
-    //validation email
-    if (!emailRegExp.test(contact.email)){
-        emailErrorMsg.innerHTML = "Veuillez renseigner un email valide";
-        formIsValid = false;
-    }
-    else{
-        emailErrorMsg.innerHTML = "";
-        formIsValid = true;
-    };
+//city
+    const city = document.getElementById("city");
+    const cityErrorMsg = document.getElementById("cityErrorMsg");
+    let cityState = false;
 
-    //si tous les champs sont remplis = ok sinon envoyer une alerte
-    if(!formIsValid){ 
-        alert ("Merci de vérifier vos informations")
-    }
+city.addEventListener("input", resultFind =>{
+    resultFind = cityRegExp(contact.city);
+    cityErrorMsg.innerHTML = resultFind ? "" : "Veuillez entrer une ville valide";
+    cityState = resultFind ? true : false;
+})
 
-    return formIsValid
+//email
+    const email = document.getElementById("email");
+    const emailErrorMsg = document.getElementById("emailErrorMsg");
+    let emailState = false;
+
+email.addEventListener("input", resultFind =>{
+    resultFind = emailRegExp(contact.email);
+    emailErrorMsg.innerHTML = resultFind ? "" : "Veuillez entrer une email valide";
+    emailState = resultFind ? true : false;
+})
+
+let formIsValid = {
+    firstNameState,
+    lastNameState,
+    addressState,
+    cityState,
+    emailState
+}
+
+if(!formIsValid){ 
+    return;
+}
+
+return formIsValid
+
 };
-
 
 getProductsbyAPI(true);

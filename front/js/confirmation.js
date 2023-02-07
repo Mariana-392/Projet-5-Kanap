@@ -5,7 +5,6 @@ document.getElementById("orderId").innerHTML = `<br> <br> ${orderId}`;
 
 //suppression du localStorage
 function clearlocalStorage(){
-    localStorage.removeItem("orderId");
     localStorage.removeItem("basket");
     localStorage.removeItem("currentProductId");
 }

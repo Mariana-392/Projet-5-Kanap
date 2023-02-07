@@ -14,8 +14,6 @@ function getOneProduct(id){
         });
 }
 
-
-
 const url = new URL(window.location.href);
 const id = url.searchParams.get("id");
 
@@ -74,7 +72,7 @@ function getBasket(){
 const cartButton = document.getElementById("addToCart");
 cartButton.addEventListener("click", addToCart);
 
-//Ajout au panier 
+//Ajout au panier
 function addToCart(){
     const color = document.getElementById("colors");
     const quantity = document.getElementById("quantity");
@@ -83,43 +81,40 @@ function addToCart(){
         id: localStorage.getItem("currentProductId"), 
         quantity: quantity.value
     };
-
     let basket = JSON.parse(localStorage.getItem("basket"));
     if(typeof basket === "undefined" || basket === null ){
         basket = [];
     }
-
-    /*rechercher si l'item existe dans le tableau par id et couleur: 
-    si oui, je récupere quantity et l'ajoute à l'ancienne quantity. 
-    On supprime l'ancienn produit du tableau et on rajoute le nouveau
-    */
-
-    let existingProductInBasket = basket.find((product) => 
-            product.id === newProductInBasket.id &&
-            product.color === newProductInBasket.color
-    );
-    
-    if(typeof existingProductInBasket !== "undefined"){
-        existingProductInBasket.quantity = parseInt(existingProductInBasket.quantity) + parseInt(quantity.value) ;
-        basket = basket.filter(
-            (product) => 
-                product.id != newProductInBasket.id &&
-                product.color != newProductInBasket.color
-        );
-        newProductInBasket = existingProductInBasket;
-    }
-
-    if (color.value == "" || quantity.value <= 0 || quantity.value > 100 ) {
+    //si color = null et quantité = 0< ou > 100 alors alert
+    if (color.value == "" || quantity.value < 1 || quantity.value > 100 ) {
         alert(
         "Veuillez choisir une couleur et une quantité comprise entre 1 et 100"
-        );}
-        else if(newProductInBasket.quantity >100){
-            alert("Vous ne pouvez en commander que 100 maximum");
-        }
+        )
+    ;} 
+    //sinon fouille dans localstorage avec find() si object existe deja
     else{
-    basket.push(newProductInBasket);
-    alert("Votre produit a bien été ajouté au panier");
-    localStorage.setItem('basket', JSON.stringify(basket));    
-}
-    
-}
+        let existingProductInBasket = basket.find((product) => 
+            product.id === newProductInBasket.id &&
+            product.color === newProductInBasket.color
+        ); 
+        //si existe = > j'additionne quantité trouvé avec quantity.value
+        if(typeof existingProductInBasket !== "undefined"){
+            existingProductInBasket.quantity = parseInt(existingProductInBasket.quantity) + parseInt(quantity.value);
+            newProductInBasket = existingProductInBasket;
+            //si la variable est sup à 100 alors alert
+            if (existingProductInBasket.quantity > 100) {
+                alert("Vous ne pouvez en commander que 100 maximum");
+            }
+            //sinon push dans basket et envoie dans localstorage
+            else{
+                basket.push(newProductInBasket);
+                alert("Votre produit a bien été ajouté au panier");
+                localStorage.setItem('basket', JSON.stringify(basket));  
+            }
+        }else{
+            basket.push(newProductInBasket);
+            alert("Votre produit a bien été ajouté au panier");
+            localStorage.setItem('basket', JSON.stringify(basket));  
+        }
+    }
+};
