@@ -91,7 +91,7 @@ function addToCart(){
         "Veuillez choisir une couleur et une quantité comprise entre 1 et 100"
         )
     ;} 
-    //sinon fouille dans localstorage avec find() si object existe deja
+    //sinon on fouille dans localstorage avec find() si object existe deja
     else{
         let existingProductInBasket = basket.find((product) => 
             product.id === newProductInBasket.id &&
@@ -99,15 +99,14 @@ function addToCart(){
         ); 
         //si existe = > j'additionne quantité trouvé avec quantity.value
         if(typeof existingProductInBasket !== "undefined"){
-            existingProductInBasket.quantity = parseInt(existingProductInBasket.quantity) + parseInt(quantity.value);
-            newProductInBasket = existingProductInBasket;
+            let newQuantity = parseInt(existingProductInBasket.quantity) + parseInt(quantity.value);
             //si la variable est sup à 100 alors alert
-            if (existingProductInBasket.quantity > 100) {
+            if (newQuantity > 100) {
                 alert("Vous ne pouvez en commander que 100 maximum");
             }
             //sinon push dans basket et envoie dans localstorage
             else{
-                basket.push(newProductInBasket);
+                existingProductInBasket.quantity = newQuantity;
                 alert("Votre produit a bien été ajouté au panier");
                 localStorage.setItem('basket', JSON.stringify(basket));  
             }

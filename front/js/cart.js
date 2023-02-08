@@ -212,135 +212,117 @@ function changeQuantityOneProduct(event){
 
 function handleSubmitForm() {
     /*Gérer l'event listener du formulaire pour l'envoi*/
-    const form = document.getElementById("order").closest("form");
-    form.addEventListener("submit", sendForm);
+    const form = document.getElementById("order");
+    form.addEventListener("click", sendForm);
 }
 
 //Envoyer le formulaire et redirigé vers la page confirmation avec le num de commande
 function sendForm(event) {
     event.preventDefault();
 
-    const contact = {
-        firstName: document.getElementById('firstName').value,
-        lastName: document.getElementById('lastName').value,
-        address : document.getElementById("address").value,
-        city: document.getElementById('city').value,
-        email: document.getElementById('email').value,
-    };
-
-    if (!validateForm(contact)) {
-        return;
-    }
-
-
-    // A partir de là, faire progressivement ces lignes après s'etre assuré que validateForm fonctionne
-    const form = event.target;
-
-    let cartItemArray = [];
+    if(firstNameState &&
+        lastNameState &&
+        addressState &&
+        cityState &&
+        emailState)
+        {
+        let products = [];
         for (let item of JSON.parse(localStorage.getItem("basket"))){
-        cartItemArray.push(item.id)
-        };
+            products.push(item.id)
+            };
+    
+        const contact ={
+            firstName: firstName.value,
+            lastName: lastName.value,
+            address: address.value,
+            city: city.value,
+            email: email.value
+        }
 
-    const payload = {
-        products : cartItemArray,
-        contact: contact
+        const payload = {products, contact}
+        /**
+         * Fetch API: requête POST avec la variable "payload" en données
+         */
+    
+        fetch('http://localhost:3000/api/products/order', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json", 
+            },
+            body: JSON.stringify(payload)
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            document.location.href = `confirmation.html?id=${data.orderId}#limitedWidthBlock`;
+        })
+        .catch((err) => {
+            alert(`Erreur : ${err}`);
+        });
     }
-    /**
-     * Fetch API: requête POST avec la variable "payload" en données
-     */
-
-    fetch('http://localhost:3000/api/products/order', {
-        method: 'POST',
-        headers: {
-            "Content-Type": "application/json", 
-        },
-        body: JSON.stringify(payload)
-    })
-    .then((response) => response.json())
-    .then((data) => {
-        document.location.href = `confirmation.html?id=${data.orderId}#limitedWidthBlock`;
-    })
-    .catch((err) => {
-        alert(`Erreur : ${err}`);
-    });
 }
 
-function validateForm(contact) {
-    //Création des expresssions régulières
-    const nameRegExp = /^[A-Za-z,'-]+$/;
-    const addressRegExp = /^[a-zA-Z0-9\s,. '-]{3,}$/ ;
-    const cityRegExp = /^(?:[A-Za-z]{2,}(?:(\.\s|'s\s|\s?-\s?|\s)?(?=[A-Za-z]+))){1,2}(?:[A-Za-z]+)?$/;
-    const emailRegExp = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
 
-// First Name
-    const firstName = document.getElementById("firstName")
-    const firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
-    let firstNameState = false;
+//Création des expresssions régulières
+const nameRegExp = /^[A-Za-z, '-]{3,50}$/;
+const addressRegExp = /^[a-zA-Z0-9\s,. '-]{3,}$/ ;
+const cityRegExp = /^(?:[A-Za-z]{2,}(?:(\.\s|'s\s|\s?-\s?|\s)?(?=[A-Za-z]+))){1,2}(?:[A-Za-z]+)?$/;
+const emailRegExp = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+//champ du formulaire
+const firstName = document.getElementById("firstName");
+const lastName = document.getElementById("lastName");
+const address = document.getElementById("address");
+const city = document.getElementById("city");
+const email = document.getElementById("email");
+//champs du formulaire pour le message d'erreur
+const firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
+const lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
+const addressErrorMsg = document.getElementById("addressErrorMsg");
+const cityErrorMsg = document.getElementById("cityErrorMsg");
+const emailErrorMsg = document.getElementById("emailErrorMsg");
+//Etat des champs du formulaire
+let firstNameState = false;
+let lastNameState = false;
+let addressState = false;
+let cityState = false;
+let emailState = false;
 
+function validateForm() {
+
+    // validation First Name
     firstName.addEventListener("input", resultFind =>{
-        resultFind = nameRegExp(contact.firstName);
+        resultFind = nameRegExp.test(firstName.value);
         firstNameErrorMsg.innerHTML = resultFind ? "" : "Veuillez entrer un prénom valide";
         firstNameState = resultFind ? true : false;
     })
 
-// LastName
-    const lastName = document.getElementById("lastName");
-    const lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
-    let lastNameState = false;
+        // validation LastName
+    lastName.addEventListener("input", resultFind =>{
+        resultFind = nameRegExp.test(lastName.value);
+        lastNameErrorMsg.innerHTML = resultFind ? "" : "Veuillez entrer un nom valide";
+        lastNameState = resultFind ? true : false;
+    })
 
-lastName.addEventListener("input", resultFind =>{
-    resultFind = nameRegExp(contact.lastName);
-    lastNameErrorMsg.innerHTML = resultFind ? "" : "Veuillez entrer un nom valide";
-    lastNameState = resultFind ? true : false;
-})
+        // Validation Address
+    address.addEventListener("input", resultFind =>{
+        resultFind = addressRegExp.test(address.value);
+        addressErrorMsg.innerHTML = resultFind ? "" : "Veuillez entrer une addresse valide";
+        addressState = resultFind ? true : false;
+    })
 
-//Address
-    const address = document.getElementById("address");
-    const addressErrorMsg = document.getElementById("addressErrorMsg");
-    let addressState = false;
+        // Validation city
+    city.addEventListener("input", resultFind =>{
+        resultFind = cityRegExp.test(city.value);
+        cityErrorMsg.innerHTML = resultFind ? "" : "Veuillez entrer une ville valide";
+        cityState = resultFind ? true : false;
+    })
 
-address.addEventListener("input", resultFind =>{
-    resultFind = addressRegExp(contact.address);
-    addressErrorMsg.innerHTML = resultFind ? "" : "Veuillez entrer une addresse valide";
-    addressState = resultFind ? true : false;
-})
-
-//city
-    const city = document.getElementById("city");
-    const cityErrorMsg = document.getElementById("cityErrorMsg");
-    let cityState = false;
-
-city.addEventListener("input", resultFind =>{
-    resultFind = cityRegExp(contact.city);
-    cityErrorMsg.innerHTML = resultFind ? "" : "Veuillez entrer une ville valide";
-    cityState = resultFind ? true : false;
-})
-
-//email
-    const email = document.getElementById("email");
-    const emailErrorMsg = document.getElementById("emailErrorMsg");
-    let emailState = false;
-
-email.addEventListener("input", resultFind =>{
-    resultFind = emailRegExp(contact.email);
-    emailErrorMsg.innerHTML = resultFind ? "" : "Veuillez entrer une email valide";
-    emailState = resultFind ? true : false;
-})
-
-let formIsValid = {
-    firstNameState,
-    lastNameState,
-    addressState,
-    cityState,
-    emailState
+        // Validation email
+    email.addEventListener("input", resultFind =>{
+        resultFind = emailRegExp.test(email.value);
+        emailErrorMsg.innerHTML = resultFind ? "" : "Veuillez entrer une email valide";
+        emailState = resultFind ? true : false;
+    })
 }
 
-if(!formIsValid){ 
-    return;
-}
-
-return formIsValid
-
-};
-
+validateForm();
 getProductsbyAPI(true);
